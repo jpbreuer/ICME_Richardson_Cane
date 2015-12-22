@@ -1,3 +1,6 @@
+tic
+% function [jdssc_rich, jds_icme, jde_icme, V_ICME, vpeak, B, jds_mc, jde_mc, bde, bif, quality, MC, Hut, dstpeak, v_transit, jd_lascotime, Lasco_datagap, Halo] = get_ICME_tabledata
+
 clear all
 close all
 %% Import and Save Data (Online)
@@ -7,7 +10,7 @@ close all
 % ICME_tabledata = getTableFromWeb_mod(url_string,nr_table);
 % save('ICME_tabledata.mat','ICME_tabledata');
 %% Import from Saved Data (Offline)
-clear all
+% clear all
 load('ICME_tabledata.mat','-mat');
 % Remove irrelevant data
 first_col = ICME_tabledata(:,1);
@@ -30,7 +33,7 @@ first_col = ICME_tabledata_new(:,1);
 %     idx(i) = find(index_array(i) == 1);
 % end
 
-%% Correct dates
+%% Correct Dates and Convert to JD
 % create a year vector of correct length
 first_col = ICME_tabledata_new(:,1);
 year_NAN = str2double(first_col);
@@ -139,6 +142,26 @@ for i = date_info_index
     end
 end
 
+%% Remove rows 4 and 5 (See original ICME_tabledata - Comp?; dV)
+    ICME_tabledata_new(:,4) = [];
+    ICME_tabledata_new(:,4) = [];
+    ICME_tabledata_new(:,9) = [];
+%% Easy Variables (V_ICME; V_max; B,...)
+V_ICME = str2double(ICME_tabledata_new(:,9));
+V_max = str2double(ICME_tabledata_new(:,10));
+B = str2double(ICME_tabledata_new(:,11));
+%% Magnetic Clouds
+jds_mc = str2double(ICME_tabledata_new(:,4));
+jde_mc = str2double(ICME_tabledata_new(:,5));
+
+% jds_mc = 
+% jde_mc = 
+
+% for i = 1:length(jds_mc)
+%     jds_mc(i)(regexp(jds_mc,'[+]')) = [];
+%     jde_mc(i)(regexp(jde_mc,'[+]')) = [];
+% end
+
 %%
 % for i = 1:length(first_col_splt)
 %     for j = 1:length(first_col_splt{i})
@@ -167,3 +190,4 @@ end
 
 
 % timevec = datetime_JP(first_col);
+toc
