@@ -7,8 +7,9 @@ if exist('ICME_tabledata.mat','file') == 0
 
     ICME_tabledata = getTableFromWeb_mod(url_string,nr_table);
     save('ICME_tabledata.mat','ICME_tabledata');
-else
+end
 
+if exist('ICME_tabledata.mat','file') > 0
     %% Import from Saved Data (Offline)
     clear all
     load('ICME_tabledata.mat','-mat');
@@ -355,5 +356,4 @@ else
     jds_mc = julian_JP(fourth_col_vec);
     jde_mc = julian_JP(fifth_col_vec);
 end
-
 end
