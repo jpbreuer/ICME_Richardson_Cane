@@ -1,14 +1,7 @@
-tic
-% function [jdssc_rich, jds_icme, jde_icme, jds_mc, jde_mc, bde, bif, quality, V_ICME, vpeak, B, MC, Hut, dstpeak, v_transit, jd_lascotime, Lasco_datagap, Halo] = get_ICME_tabledata
-
-clear all
-close all
+function [jdssc_rich, jds_icme, jde_icme, jds_mc, jde_mc, bde, bif, quality, V_ICME, vpeak, B, MC, Hut, dstpeak, dstpeak_info, v_transit, jd_lascotime, lasco_datagap, Halo] = get_ICME_tabledata
 %% Import and Save Data (Online)
 % url_string = ('http://www.srl.caltech.edu/ACE/ASC/DATA/level3/icmetable2.htm');
-% url_string = ('file:///home/jpbreuer/Work/Jobs/dtuspace/ICME_Richardson_Cane/rich_cane_website/List%20of%20Richardson_Cane%20ICMEs%20Since%20January1996.htm');
-url_string = ('file:///home/jpbreuer/Work/Jobs/dtuspace/ICME_Richardson_Cane/rich_cane_website/index_new.html');
-
-% url_string = ('http://jpb.ninja');
+url_string = ('http://jpb.ninja/index.html');
 nr_table = 1;
 
 ICME_tabledata = getTableFromWeb_mod(url_string,nr_table);
@@ -244,7 +237,7 @@ jd_lascotime = julian_JP(last_col_vec);
 jds_mc = str2double(ICME_tabledata_new(:,4));
 jde_mc = str2double(ICME_tabledata_new(:,5));
 V_ICME = str2double(ICME_tabledata_new(:,9));
-Vpeak = str2double(ICME_tabledata_new(:,10));
+vpeak = str2double(ICME_tabledata_new(:,10));
 v_transit = str2double(ICME_tabledata_new(:,end-1));
 B = str2double(ICME_tabledata_new(:,11));
 %%
@@ -323,12 +316,15 @@ for i = 1:length(year)
         mcs_added_value(i) = second_col_vec(i,4) + jds_mc_col(i);
         % correct for hours added over a day
         if mcs_added_value(i) > 23
-            addday_idx(i) = 1
+            addday_idx(i) = 1;
             mcs_added_value(i) = mcs_added_value(i) - 24;
         end
         % recreate date vector
         fourth_col_vec(i,3) = fourth_col_vec(i,3) + addday_idx(i);
         fourth_col_vec(i,4) = fourth_col_vec(i,4) + mcs_added_value(i);
+        if isnan(fourth_col_vec(i,4)) == 1
+            fourth_col_vec(i,4) = second_col_vec(i,4);
+        end
     end
 end
 
@@ -342,16 +338,19 @@ for i = 1:length(year)
         mce_added_value(i) = third_col_vec(i,4) + jde_mc_col(i);
         % correct for hours added over a day
         if mce_added_value(i) > 23
-            addday_e_idx(i) = 1
+            addday_e_idx(i) = 1;
             mce_added_value(i) = mce_added_value(i) - 24;
         end
         % recreate date vector
         fifth_col_vec(i,3) = fifth_col_vec(i,3) + addday_e_idx(i);
         fifth_col_vec(i,4) = fifth_col_vec(i,4) + mce_added_value(i);
+        if isnan(fifth_col_vec(i,4)) == 1
+            fifth_col_vec(i,4) = third_col_vec(i,4);
+        end
     end
 end
-jds_mc = julian
-jde_mc = 
+jds_mc = julian_JP(fourth_col_vec);
+jde_mc = julian_JP(fifth_col_vec);
 
 
-toc
+end
