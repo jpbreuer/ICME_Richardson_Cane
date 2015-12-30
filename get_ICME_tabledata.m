@@ -2,10 +2,7 @@ function [jdssc_rich, jds_icme, jde_icme, jds_mc, jde_mc, bde, bif, quality, V_I
 
 %% Import and Save Data (Online)
 % url_string = ('http://www.srl.caltech.edu/ACE/ASC/DATA/level3/icmetable2.htm');
-% url_string = ('file:///home/jpbreuer/Work/Jobs/dtuspace/ICME_Richardson_Cane/rich_cane_website/List%20of%20Richardson_Cane%20ICMEs%20Since%20January1996.htm');
-url_string = ('file:///home/jpbreuer/Work/Jobs/dtuspace/ICME_Richardson_Cane/rich_cane_website/index_new.html');
-
-% url_string = ('http://jpb.ninja');
+url_string = ('http://jpb.ninja/index.html');
 nr_table = 1;
 
 ICME_tabledata = getTableFromWeb_mod(url_string,nr_table);
