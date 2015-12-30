@@ -5,7 +5,7 @@ close all
 %% Navigate to a webpage with a table 
 % You have to use the MATLAB browser because this takes advantage of the
 % matlabcolon (matlab:) protocol.
-web('http://www.srl.caltech.edu/ACE/ASC/DATA/level3/icmetable2.htm')
+web('http://jpb.ninja/index.html')
 % give it time to load the page
 pause(3)
 %% Call the function to grab the data
