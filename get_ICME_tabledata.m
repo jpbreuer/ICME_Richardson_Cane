@@ -2,8 +2,9 @@ function [jdssc_rich, jds_icme, jde_icme, jds_mc, jde_mc, bde, bif, quality, V_I
 %% Import and Save Data (Online)
 
 if exist('ICME_tabledata.mat','file') == 0
-    % url_string = ('http://www.srl.caltech.edu/ACE/ASC/DATA/level3/icmetable2.htm');
+    %THIS WONT WORK...  url_string = ('http://www.srl.caltech.edu/ACE/ASC/DATA/level3/icmetable2.htm');
     url_string = ('http://jpb.ninja/index.html');
+    % url_string = ('file:///home/jpbreuer/Work/Jobs/dtuspace/ICME_Richardson_Cane/rich_cane_website/index.html');
     nr_table = 1;
     
     ICME_tabledata = getTableFromWeb_mod(url_string,nr_table);

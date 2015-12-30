@@ -3,29 +3,30 @@ function [jdssc_rich, jds_icme, jde_icme, jds_mc, jde_mc, bde, bif, quality, V_I
 
 if exist('ICME_tabledata.mat','file') == 0
     % url_string = ('http://www.srl.caltech.edu/ACE/ASC/DATA/level3/icmetable2.htm');
-    url_string = ('http://jpb.ninja/index.html');
+    % url_string = ('http://jpb.ninja/index.html');
+    url_string = ('
     nr_table = 1;
     
     ICME_tabledata = getTableFromWeb_mod(url_string,nr_table);
     save('ICME_tabledata.mat','ICME_tabledata');
 end
 if exist('ICME_tabledata.mat','file') > 0
-    %% Import from Saved Data (Offline)
+%% Import from Saved Data (Offline)
     load('ICME_tabledata.mat','-mat');
-    % Remove irrelevant data
+% Remove irrelevant data
     first_col = ICME_tabledata(:,1);
     
-    % define function
+% define function
     cellfind = @(string)(@(cell_contents)(strcmp(string,cell_contents)));
     
-    % get indexes for labels (and remove them)
+% get indexes for labels (and remove them)
     index = cellfun(cellfind('Disturbance MM/DD (UT) (a)'),first_col);
     index = find(index == 1);
     [ICME_tabledata_new PS] = removerows(ICME_tabledata,index);
     first_col = ICME_tabledata_new(:,1);
     
-    %% Correct Dates and Convert to JD
-    % delete blank rows
+%% Correct Dates and Convert to JD
+% delete blank rows
     for i = 1:length(first_col)
         if isempty(first_col{i}) == 1
             emptyidx(i) = 1;
@@ -49,7 +50,6 @@ if exist('ICME_tabledata.mat','file') > 0
     
 %% Make correct year spacing
     for i = 1:length(yearidx)-1
-        %     yearidx_diff(1) = 1;
         yearidx_diff(i) = yearidx(i+1) - yearidx(i) - 1;
     end
     
@@ -58,7 +58,6 @@ if exist('ICME_tabledata.mat','file') > 0
         yearidx_last(i) = yearidx_last(i-1) + yearidx_diff(i);
     end
     yearidx_last(end) = length(first_col);
-
     
 %% Create year vector based on indexes
     
@@ -172,12 +171,10 @@ if exist('ICME_tabledata.mat','file') > 0
     lasco_datagap = zeros(length(year),1);
     Halo = zeros(length(year),1);
     
-    for i = 1:length(year)%lasco_info_index
+    for i = 1:length(year) %lasco_info_index
         for j = 1:length(last_col_splt{i})
             if char(last_col_splt{i}{j}) == 'H'
                 Halo(i) = 1;
-                %     elseif char(last_col_splt{i}(end)) == 'p'
-                %         Halo(i) = 1;
             end
         end
     end
@@ -305,18 +302,18 @@ if exist('ICME_tabledata.mat','file') > 0
     
     addday_idx = zeros(length(year),1);
     for i = 1:length(year)
-        % skip NaN's
+% skip NaN's
         if jds_mc_col(i) == NaN
             continue
         else
-            % add hours to hours
+% add hours to hours
             mcs_added_value(i) = second_col_vec(i,4) + jds_mc_col(i);
-            % correct for hours added over a day
+% correct for hours added over a day
             if mcs_added_value(i) > 23
                 addday_idx(i) = 1;
                 mcs_added_value(i) = mcs_added_value(i) - 24;
             end
-            % recreate date vector
+% recreate date vector
             fourth_col_vec(i,3) = fourth_col_vec(i,3) + addday_idx(i);
             fourth_col_vec(i,4) = fourth_col_vec(i,4) + mcs_added_value(i);
             if isnan(fourth_col_vec(i,4)) == 1
@@ -327,18 +324,18 @@ if exist('ICME_tabledata.mat','file') > 0
     
     addday_e_idx = zeros(length(year),1);
     for i = 1:length(year)
-        % skip NaN's
+% skip NaN's
         if jde_mc_col(i) == NaN
             continue
         else
-            % add hours to hours
+% add hours to hours
             mce_added_value(i) = third_col_vec(i,4) + jde_mc_col(i);
-            % correct for hours added over a day
+% correct for hours added over a day
             if mce_added_value(i) > 23
                 addday_e_idx(i) = 1;
                 mce_added_value(i) = mce_added_value(i) - 24;
             end
-            % recreate date vector
+% recreate date vector
             fifth_col_vec(i,3) = fifth_col_vec(i,3) + addday_e_idx(i);
             fifth_col_vec(i,4) = fifth_col_vec(i,4) + mce_added_value(i);
             if isnan(fifth_col_vec(i,4)) == 1
