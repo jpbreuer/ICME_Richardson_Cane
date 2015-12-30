@@ -1,7 +1,7 @@
 %% Workspace for get_ICME_tabledata.m
 
-clear all
-close all
+% clear all
+% close all
 
 tic
 [jdssc_rich, jds_icme, jde_icme, jds_mc, jde_mc, bde, bif, quality,...

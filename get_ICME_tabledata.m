@@ -1,125 +1,31 @@
 function [jdssc_rich, jds_icme, jde_icme, jds_mc, jde_mc, bde, bif, quality, V_ICME, vpeak, B, MC, Hut, dstpeak, dstpeak_info, v_transit, jd_lascotime, lasco_datagap, Halo] = get_ICME_tabledata
 %% Import and Save Data (Online)
-<<<<<<< HEAD
+
 if exist('ICME_tabledata.mat','file') == 0
     % url_string = ('http://www.srl.caltech.edu/ACE/ASC/DATA/level3/icmetable2.htm');
     url_string = ('http://jpb.ninja/index.html');
     nr_table = 1;
-=======
-% url_string = ('http://www.srl.caltech.edu/ACE/ASC/DATA/level3/icmetable2.htm');
-url_string = ('http://jpb.ninja/index.html');
-nr_table = 1;
-
-ICME_tabledata = getTableFromWeb_mod(url_string,nr_table);
-save('ICME_tabledata.mat','ICME_tabledata');
-%% Import from Saved Data (Offline)
-clear all
-load('ICME_tabledata.mat','-mat');
-% Remove irrelevant data
-first_col = ICME_tabledata(:,1);
-
-% define function
-cellfind = @(string)(@(cell_contents)(strcmp(string,cell_contents)));
-
-% get indexes for labels (and remove them)
-index = cellfun(cellfind('Disturbance MM/DD (UT) (a)'),first_col);
-index = find(index == 1);
-[ICME_tabledata_new PS] = removerows(ICME_tabledata,index);
-first_col = ICME_tabledata_new(:,1);
-
-%% Correct Dates and Convert to JD
-% delete blank rows
-for i = 1:length(first_col)
-    if isempty(first_col{i}) == 1
-        emptyidx(i) = 1;
-    else
-        emptyidx(i) = 0;
-    end
-end
-emptyidx = find(emptyidx > 0);
-[ICME_tabledata_new PS] = removerows(ICME_tabledata_new,emptyidx);
-first_col = ICME_tabledata_new(:,1);
-
-%% create a year vector of correct length
-year_NAN = str2double(first_col);
-yearidx = find(year_NAN > 1);
-yearidx(length(yearidx)+1) = length(year_NAN);
-year_range = year_NAN(yearidx(1)):year_NAN(yearidx(end-1));
-
-% delete 'year' rows
-[ICME_tabledata_new PS] = removerows(ICME_tabledata_new,yearidx(1:end-1));
-first_col = ICME_tabledata_new(:,1);
-
-%% Make correct year spacing
-for i = 1:length(yearidx)-1
-%     yearidx_diff(1) = 1;
-    yearidx_diff(i) = yearidx(i+1) - yearidx(i) - 1;
-end
-
-for i = 2:length(yearidx)-1
-    yearidx_last(1) = yearidx_diff(1);
-    yearidx_last(i) = yearidx_last(i-1) + yearidx_diff(i);
-end
-yearidx_last(end) = length(first_col);
-% yearidx_last(length(yearidx_last)+1) = length(first_col);
-
-%% create year vector based on indexes
-
-year = zeros(length(first_col),1);
-year(1:yearidx_last(1)) = year_range(1);
-
-for i = 2:length(yearidx)-1
-    year(yearidx_last(i-1)+1:yearidx_last(i)) = year_range(i);
-end
-
-% fill gaps due to some previous logic flaw
-% for i = 1:length(year_range)-1
-%     year(yearidx_last(i)) = year_range(i);
-% end
-%% Split Columns
-first_col = ICME_tabledata_new(:,1);
-second_col = ICME_tabledata_new(:,2);
-third_col = ICME_tabledata_new(:,3);
-last_col = ICME_tabledata_new(:,end);
-
-% check for double spaces
-first_col = regexprep(first_col, '\s+', ' ');
-second_col = regexprep(second_col, '\s+', ' ');
-third_col = regexprep(third_col, '\s+', ' ');
-last_col = regexprep(last_col, '\s+', ' ');
-
-% remove '()' characters
-last_col = regexprep(last_col,'[()]','');
-
-% split columns
-first_col_splt = regexp(first_col, '[/ ()]', 'split'); %creating 1by3 and 1by5 cells... fixed later in for loop
-second_col_splt = regexp(second_col, '[/ ()]', 'split'); 
-third_col_splt = regexp(third_col, '[/ ()]', 'split');
-last_col_splt = regexp(last_col, '[/ (]', 'split');
->>>>>>> 7dd343874ed110fd07009f03f155c08911fbf914
-
+    
     ICME_tabledata = getTableFromWeb_mod(url_string,nr_table);
     save('ICME_tabledata.mat','ICME_tabledata');
 end
-
 if exist('ICME_tabledata.mat','file') > 0
-    %% Import from Saved Data (Offline)
-    clear all
+%% Import from Saved Data (Offline)
     load('ICME_tabledata.mat','-mat');
-    % Remove irrelevant data
+% Remove irrelevant data
     first_col = ICME_tabledata(:,1);
     
-    % define function
+% define function
     cellfind = @(string)(@(cell_contents)(strcmp(string,cell_contents)));
     
-    % get indexes for labels (and remove them)
+% get indexes for labels (and remove them)
     index = cellfun(cellfind('Disturbance MM/DD (UT) (a)'),first_col);
     index = find(index == 1);
     [ICME_tabledata_new PS] = removerows(ICME_tabledata,index);
     first_col = ICME_tabledata_new(:,1);
     
-    %% Correct Dates and Convert to JD
-    % delete blank rows
+%% Correct Dates and Convert to JD
+% delete blank rows
     for i = 1:length(first_col)
         if isempty(first_col{i}) == 1
             emptyidx(i) = 1;
@@ -131,19 +37,18 @@ if exist('ICME_tabledata.mat','file') > 0
     [ICME_tabledata_new PS] = removerows(ICME_tabledata_new,emptyidx);
     first_col = ICME_tabledata_new(:,1);
     
-    %% create a year vector of correct length
+%% Create a year vector of correct length
     year_NAN = str2double(first_col);
     yearidx = find(year_NAN > 1);
     yearidx(length(yearidx)+1) = length(year_NAN);
     year_range = year_NAN(yearidx(1)):year_NAN(yearidx(end-1));
     
-    % delete 'year' rows
+% delete 'year' rows
     [ICME_tabledata_new PS] = removerows(ICME_tabledata_new,yearidx(1:end-1));
     first_col = ICME_tabledata_new(:,1);
     
-    %% Make correct year spacing
+%% Make correct year spacing
     for i = 1:length(yearidx)-1
-        %     yearidx_diff(1) = 1;
         yearidx_diff(i) = yearidx(i+1) - yearidx(i) - 1;
     end
     
@@ -152,9 +57,8 @@ if exist('ICME_tabledata.mat','file') > 0
         yearidx_last(i) = yearidx_last(i-1) + yearidx_diff(i);
     end
     yearidx_last(end) = length(first_col);
-    % yearidx_last(length(yearidx_last)+1) = length(first_col);
     
-    %% create year vector based on indexes
+%% Create year vector based on indexes
     
     year = zeros(length(first_col),1);
     year(1:yearidx_last(1)) = year_range(1);
@@ -162,27 +66,23 @@ if exist('ICME_tabledata.mat','file') > 0
     for i = 2:length(yearidx)-1
         year(yearidx_last(i-1)+1:yearidx_last(i)) = year_range(i);
     end
-    
-    % fill gaps due to some previous logic flaw
-    % for i = 1:length(year_range)-1
-    %     year(yearidx_last(i)) = year_range(i);
-    % end
-    %% Split Columns
+
+%% Split Columns
     first_col = ICME_tabledata_new(:,1);
     second_col = ICME_tabledata_new(:,2);
     third_col = ICME_tabledata_new(:,3);
     last_col = ICME_tabledata_new(:,end);
     
-    % check for double spaces
+% check for double spaces
     first_col = regexprep(first_col, '\s+', ' ');
     second_col = regexprep(second_col, '\s+', ' ');
     third_col = regexprep(third_col, '\s+', ' ');
     last_col = regexprep(last_col, '\s+', ' ');
     
-    % remove '()' characters
+% remove '()' characters
     last_col = regexprep(last_col,'[()]','');
     
-    % split columns
+% split columns
     first_col_splt = regexp(first_col, '[/ ()]', 'split'); %creating 1by3 and 1by5 cells... fixed later in for loop
     second_col_splt = regexp(second_col, '[/ ()]', 'split');
     third_col_splt = regexp(third_col, '[/ ()]', 'split');
@@ -193,7 +93,7 @@ if exist('ICME_tabledata.mat','file') > 0
     third_col_splt = third_col_splt(~cellfun('isempty',third_col_splt));
     last_col_splt = last_col_splt(~cellfun('isempty',last_col_splt));
     
-    %% create date-time vectors for JD conversion
+%% Create date-time vectors for JD conversion
     first_col_vec = zeros(length(year),6);
     second_col_vec = zeros(length(year),6);
     third_col_vec = zeros(length(year),6);
@@ -220,12 +120,12 @@ if exist('ICME_tabledata.mat','file') > 0
         third_col_vec(i,5) = str2double(third_col_splt{i}{3}(3:4));
     end
     
-    %% Convert all time vectors to Julian Day
+%% Convert all time vectors to Julian Day
     jdssc_rich = julian_JP(first_col_vec);
     jds_icme = julian_JP(second_col_vec);
     jde_icme = julian_JP(third_col_vec);
     
-    %% Other date data
+%% Other date data
     for i = 1:length(year)
         if length(first_col_splt{i}) == 4
             date_info_index(i) = 1;
@@ -252,7 +152,7 @@ if exist('ICME_tabledata.mat','file') > 0
         end
     end
     
-    %% Lasco
+%% Lasco
     
     for i = 1:length(year)
         if length(last_col_splt{i}) > 4
@@ -269,24 +169,20 @@ if exist('ICME_tabledata.mat','file') > 0
     
     lasco_datagap = zeros(length(year),1);
     Halo = zeros(length(year),1);
-    %%
-    for i = 1:length(year)%lasco_info_index
+    
+    for i = 1:length(year) %lasco_info_index
         for j = 1:length(last_col_splt{i})
             if char(last_col_splt{i}{j}) == 'H'
                 Halo(i) = 1;
-                %     elseif char(last_col_splt{i}(end)) == 'p'
-                %         Halo(i) = 1;
             end
         end
     end
-    %%
+    
     for i = 1:length(year) %lasco_specialidx
         for j = 1:length(last_col_splt{i})
             if strcmp(char(last_col_splt{i}{j}),'dg') == 1
-                %         if char(last_col_splt{i}{j}) == 'Z'% == [1 1] %NaN will show as NaN dg
                 lasco_datagap(i) = 1;
             elseif strcmp(char(last_col_splt{i}{j}(end)),'?') == 1
-                %         elseif char(last_col_splt{i}{j}(end)) == '?'
                 lasco_datagap(i) = 2;
             elseif strcmp(char(last_col_splt{i}),'NaN') == 1
                 lasco_datagap(i) = NaN;
@@ -296,7 +192,7 @@ if exist('ICME_tabledata.mat','file') > 0
         end
     end
     
-    % remove any character that is not a number
+% remove any character that is not a number
     
     last_col_new = regexprep(last_col,'dg ','');
     for i = 1:length(year)
@@ -304,13 +200,13 @@ if exist('ICME_tabledata.mat','file') > 0
             last_col_new{i} = regexprep(last_col_new{i},'dg','NaN');
         end
     end
-    % last_col_new = regexprep(last_col,'dg','NaN');
+% last_col_new = regexprep(last_col,'dg','NaN');
     last_col_new = regexprep(last_col_new,'[Hp?~]','');
     last_col_splt_new = regexp(last_col_new, '[/ (]', 'split');
     
-    %NOTE had to modify several lines to give relative estimates for
-    %jdlascotime. if no exact time was given, 0000 was chosen, if two days were
-    %given (p), 1200 was chosen, else was as is or NaN.
+%NOTE had to modify several lines to give relative estimates for
+%jdlascotime. if no exact time was given, 0000 was chosen, if two days were
+%given (p), 1200 was chosen, else was as is or NaN.
     last_col_vec = zeros(length(year),6);
     for i = 1:length(year)
         last_col_vec(i,1) = year(i);
@@ -326,18 +222,18 @@ if exist('ICME_tabledata.mat','file') > 0
     
     jd_lascotime = julian_JP(last_col_vec);
     
-    %% Remove rows 4 and 5 (See original ICME_tabledata - Comp?; dV)
+%% Remove rows 4 and 5 (See original ICME_tabledata - Comp?; dV)
     ICME_tabledata_new(:,4) = [];
     ICME_tabledata_new(:,4) = [];
     ICME_tabledata_new(:,9) = [];
-    %% Easy Variables (Magnetic Clouds, V_ICME; V_max; V_transit, B,...)
+%% Easy Variables (Magnetic Clouds, V_ICME; V_max; V_transit, B,...)
     jds_mc = str2double(ICME_tabledata_new(:,4));
     jde_mc = str2double(ICME_tabledata_new(:,5));
     V_ICME = str2double(ICME_tabledata_new(:,9));
     vpeak = str2double(ICME_tabledata_new(:,10));
     v_transit = str2double(ICME_tabledata_new(:,end-1));
     B = str2double(ICME_tabledata_new(:,11));
-    %%
+%% Dstpeak
     dstpeak_col = ICME_tabledata_new(:,end-2);
     dstpeak_vec = regexp(dstpeak_col, '[/ (]', 'split');
     dstpeak = str2double(dstpeak_vec(:,1));
@@ -352,7 +248,7 @@ if exist('ICME_tabledata.mat','file') > 0
             end
         end
     end
-    %% BDE, BIF
+%% BDE, BIF
     BDE = ICME_tabledata_new(:,6);
     BIF = ICME_tabledata_new(:,7);
     
@@ -376,7 +272,7 @@ if exist('ICME_tabledata.mat','file') > 0
             bif(i) = NaN;
         end
     end
-    %% MC and Quality
+%% MC and Quality
     MCend_col = ICME_tabledata_new(:,end-3);
     Hut = zeros(length(MCend_col),1);
     for i = 1:length(year)
@@ -396,7 +292,7 @@ if exist('ICME_tabledata.mat','file') > 0
         end
     end
     
-    %% JD_MC
+%% JD_MC
     jds_mc_col = str2double(ICME_tabledata_new(:,4));
     fourth_col_vec = second_col_vec;
     
@@ -405,18 +301,18 @@ if exist('ICME_tabledata.mat','file') > 0
     
     addday_idx = zeros(length(year),1);
     for i = 1:length(year)
-        % skip NaN's
+% skip NaN's
         if jds_mc_col(i) == NaN
             continue
         else
-            % add hours to hours
+% add hours to hours
             mcs_added_value(i) = second_col_vec(i,4) + jds_mc_col(i);
-            % correct for hours added over a day
+% correct for hours added over a day
             if mcs_added_value(i) > 23
                 addday_idx(i) = 1;
                 mcs_added_value(i) = mcs_added_value(i) - 24;
             end
-            % recreate date vector
+% recreate date vector
             fourth_col_vec(i,3) = fourth_col_vec(i,3) + addday_idx(i);
             fourth_col_vec(i,4) = fourth_col_vec(i,4) + mcs_added_value(i);
             if isnan(fourth_col_vec(i,4)) == 1
@@ -427,18 +323,18 @@ if exist('ICME_tabledata.mat','file') > 0
     
     addday_e_idx = zeros(length(year),1);
     for i = 1:length(year)
-        % skip NaN's
+% skip NaN's
         if jde_mc_col(i) == NaN
             continue
         else
-            % add hours to hours
+% add hours to hours
             mce_added_value(i) = third_col_vec(i,4) + jde_mc_col(i);
-            % correct for hours added over a day
+% correct for hours added over a day
             if mce_added_value(i) > 23
                 addday_e_idx(i) = 1;
                 mce_added_value(i) = mce_added_value(i) - 24;
             end
-            % recreate date vector
+% recreate date vector
             fifth_col_vec(i,3) = fifth_col_vec(i,3) + addday_e_idx(i);
             fifth_col_vec(i,4) = fifth_col_vec(i,4) + mce_added_value(i);
             if isnan(fifth_col_vec(i,4)) == 1
@@ -448,7 +344,7 @@ if exist('ICME_tabledata.mat','file') > 0
     end
     jds_mc = julian_JP(fourth_col_vec);
     jde_mc = julian_JP(fifth_col_vec);
-
+    
     jds_mc = julian_JP(fourth_col_vec);
     jde_mc = julian_JP(fifth_col_vec);
 
