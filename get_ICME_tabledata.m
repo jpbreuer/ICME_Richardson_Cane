@@ -448,9 +448,9 @@ if exist('ICME_tabledata.mat','file') > 0
     end
     jds_mc = julian_JP(fourth_col_vec);
     jde_mc = julian_JP(fifth_col_vec);
+
+    jds_mc = julian_JP(fourth_col_vec);
+    jde_mc = julian_JP(fifth_col_vec);
+
 end
-
-jds_mc = julian_JP(fourth_col_vec);
-jde_mc = julian_JP(fifth_col_vec);
-
 end
