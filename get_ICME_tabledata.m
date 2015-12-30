@@ -1,9 +1,102 @@
 function [jdssc_rich, jds_icme, jde_icme, jds_mc, jde_mc, bde, bif, quality, V_ICME, vpeak, B, MC, Hut, dstpeak, dstpeak_info, v_transit, jd_lascotime, lasco_datagap, Halo] = get_ICME_tabledata
 %% Import and Save Data (Online)
+<<<<<<< HEAD
 if exist('ICME_tabledata.mat','file') == 0
     % url_string = ('http://www.srl.caltech.edu/ACE/ASC/DATA/level3/icmetable2.htm');
     url_string = ('http://jpb.ninja/index.html');
     nr_table = 1;
+=======
+% url_string = ('http://www.srl.caltech.edu/ACE/ASC/DATA/level3/icmetable2.htm');
+url_string = ('http://jpb.ninja/index.html');
+nr_table = 1;
+
+ICME_tabledata = getTableFromWeb_mod(url_string,nr_table);
+save('ICME_tabledata.mat','ICME_tabledata');
+%% Import from Saved Data (Offline)
+clear all
+load('ICME_tabledata.mat','-mat');
+% Remove irrelevant data
+first_col = ICME_tabledata(:,1);
+
+% define function
+cellfind = @(string)(@(cell_contents)(strcmp(string,cell_contents)));
+
+% get indexes for labels (and remove them)
+index = cellfun(cellfind('Disturbance MM/DD (UT) (a)'),first_col);
+index = find(index == 1);
+[ICME_tabledata_new PS] = removerows(ICME_tabledata,index);
+first_col = ICME_tabledata_new(:,1);
+
+%% Correct Dates and Convert to JD
+% delete blank rows
+for i = 1:length(first_col)
+    if isempty(first_col{i}) == 1
+        emptyidx(i) = 1;
+    else
+        emptyidx(i) = 0;
+    end
+end
+emptyidx = find(emptyidx > 0);
+[ICME_tabledata_new PS] = removerows(ICME_tabledata_new,emptyidx);
+first_col = ICME_tabledata_new(:,1);
+
+%% create a year vector of correct length
+year_NAN = str2double(first_col);
+yearidx = find(year_NAN > 1);
+yearidx(length(yearidx)+1) = length(year_NAN);
+year_range = year_NAN(yearidx(1)):year_NAN(yearidx(end-1));
+
+% delete 'year' rows
+[ICME_tabledata_new PS] = removerows(ICME_tabledata_new,yearidx(1:end-1));
+first_col = ICME_tabledata_new(:,1);
+
+%% Make correct year spacing
+for i = 1:length(yearidx)-1
+%     yearidx_diff(1) = 1;
+    yearidx_diff(i) = yearidx(i+1) - yearidx(i) - 1;
+end
+
+for i = 2:length(yearidx)-1
+    yearidx_last(1) = yearidx_diff(1);
+    yearidx_last(i) = yearidx_last(i-1) + yearidx_diff(i);
+end
+yearidx_last(end) = length(first_col);
+% yearidx_last(length(yearidx_last)+1) = length(first_col);
+
+%% create year vector based on indexes
+
+year = zeros(length(first_col),1);
+year(1:yearidx_last(1)) = year_range(1);
+
+for i = 2:length(yearidx)-1
+    year(yearidx_last(i-1)+1:yearidx_last(i)) = year_range(i);
+end
+
+% fill gaps due to some previous logic flaw
+% for i = 1:length(year_range)-1
+%     year(yearidx_last(i)) = year_range(i);
+% end
+%% Split Columns
+first_col = ICME_tabledata_new(:,1);
+second_col = ICME_tabledata_new(:,2);
+third_col = ICME_tabledata_new(:,3);
+last_col = ICME_tabledata_new(:,end);
+
+% check for double spaces
+first_col = regexprep(first_col, '\s+', ' ');
+second_col = regexprep(second_col, '\s+', ' ');
+third_col = regexprep(third_col, '\s+', ' ');
+last_col = regexprep(last_col, '\s+', ' ');
+
+% remove '()' characters
+last_col = regexprep(last_col,'[()]','');
+
+% split columns
+first_col_splt = regexp(first_col, '[/ ()]', 'split'); %creating 1by3 and 1by5 cells... fixed later in for loop
+second_col_splt = regexp(second_col, '[/ ()]', 'split'); 
+third_col_splt = regexp(third_col, '[/ ()]', 'split');
+last_col_splt = regexp(last_col, '[/ (]', 'split');
+>>>>>>> 7dd343874ed110fd07009f03f155c08911fbf914
 
     ICME_tabledata = getTableFromWeb_mod(url_string,nr_table);
     save('ICME_tabledata.mat','ICME_tabledata');
@@ -356,4 +449,8 @@ if exist('ICME_tabledata.mat','file') > 0
     jds_mc = julian_JP(fourth_col_vec);
     jde_mc = julian_JP(fifth_col_vec);
 end
+
+jds_mc = julian_JP(fourth_col_vec);
+jde_mc = julian_JP(fifth_col_vec);
+
 end
